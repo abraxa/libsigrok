@@ -322,33 +322,42 @@ SR_API GSList *sr_driver_scan(struct sr_dev_driver *driver, GSList *options)
 		return NULL;
 	}
 
+	gvar_opts = NULL;
 	ret = sr_config_list(driver, NULL, NULL, SR_CONF_SCAN_OPTIONS, &gvar_opts);
 	if (ret != SR_OK && options) {
 		/* Driver publishes no scan options but some were given. */
 		sr_err("Driver does not support scan options.");
 		return NULL;
 	}
-	opts = g_variant_get_fixed_array(gvar_opts, &num_opts, sizeof(uint32_t));
+
+	num_opts = 0;
+	opts = gvar_opts ?
+			g_variant_get_fixed_array(gvar_opts, &num_opts, sizeof(uint32_t)) :
+			NULL;
+
 	for (l = options; l; l = l->next) {
 		src = l->data;
-		for (i = 0; i < num_opts; i++) {
-			if (opts[i] == src->key)
-				break;
-		}
-		if (i == num_opts) {
+
+		if (num_opts)
+			for (i = 0; i < num_opts; i++) {
+				if (opts[i] == src->key)
+					break;
+			}
+		if ((i == num_opts) || (!num_opts)) {
 			if (!(srci = sr_config_info_get(src->key)))
 				sr_err("Driver does not support scan option %d.", src->key);
 			else
 				sr_err("Driver does not support scan option '%s'.", srci->id);
-			g_variant_unref(gvar_opts);
+			if (gvar_opts) g_variant_unref(gvar_opts);
 			return NULL;
 		}
 		if (sr_variant_type_check(src->key, src->data) != SR_OK) {
-			g_variant_unref(gvar_opts);
+			if (gvar_opts) g_variant_unref(gvar_opts);
 			return NULL;
 		}
 	}
-	g_variant_unref(gvar_opts);
+
+	if (gvar_opts) g_variant_unref(gvar_opts);
 
 	l = driver->scan(options);
 
