@@ -77,6 +77,4 @@ SR_PRIV int ipdbg_org_la_convert_trigger(const struct sr_dev_inst *sdi);
 SR_PRIV int ipdbg_org_la_receive_data(int fd, int revents, void *cb_data);
 SR_PRIV void ipdbg_org_la_abort_acquisition(const struct sr_dev_inst *sdi);
 
-SR_PRIV int ipdbg_org_la_receive_data(int fd, int revents, void *cb_data);
-
 #endif
