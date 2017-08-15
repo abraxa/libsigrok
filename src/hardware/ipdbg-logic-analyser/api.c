@@ -59,7 +59,7 @@ static void ipdbg_org_la_split_addr_port(const char *conn, char **addr, char **p
 
 static GSList *scan(struct sr_dev_driver *di, GSList *options)
 {
-    printf("scan\n");
+    sr_err("scan\n");
     struct drv_context *drvc;
     GSList *devices;
 
@@ -96,7 +96,7 @@ static GSList *scan(struct sr_dev_driver *di, GSList *options)
     if(ipdbg_org_la_tcp_open(tcp) != SR_OK)
         return NULL;
 
-    printf("set Reset\n");
+    sr_err("set Reset\n");
 //////////////////////////////////////////////////////////////////////////////////////////
     ipdbg_org_la_sendReset(tcp);
     ipdbg_org_la_sendReset(tcp);
@@ -122,8 +122,8 @@ static GSList *scan(struct sr_dev_driver *di, GSList *options)
 
     ipdbg_org_la_get_addrwidth_and_datawidth(tcp, devc);
 
-    printf("addr_width = %d, data_width = %d\n", devc->ADDR_WIDTH, devc->DATA_WIDTH);
-    printf("limit samples = %d\n", devc->limit_samples);
+    sr_err("addr_width = %d, data_width = %d\n", devc->ADDR_WIDTH, devc->DATA_WIDTH);
+    sr_err("limit samples = %d\n", devc->limit_samples);
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     for (int i = 0; i < devc->DATA_WIDTH; i++)
@@ -145,7 +145,7 @@ static GSList *scan(struct sr_dev_driver *di, GSList *options)
 
 static int dev_clear(const struct sr_dev_driver *di)
 {
-    printf("dev_clear\n");
+    sr_err("dev_clear\n");
 
     struct drv_context *drvc = di->context;
     struct sr_dev_inst *sdi;
@@ -170,7 +170,7 @@ static int dev_clear(const struct sr_dev_driver *di)
 
 static int dev_open(struct sr_dev_inst *sdi)
 {
-    printf("dev_open\n");
+    sr_err("dev_open\n");
     (void)sdi;
 
     /* TODO: get handle from sdi->conn and open it. */
@@ -180,7 +180,7 @@ static int dev_open(struct sr_dev_inst *sdi)
 
     if (!tcp)
     {
-        printf("Out of memory\n");
+        sr_err("Out of memory\n");
         return SR_ERR;
     }
     sdi->conn = tcp;
@@ -198,7 +198,7 @@ static int dev_close(struct sr_dev_inst *sdi)
     (void)sdi;
 
     /* TODO: get handle from sdi->conn and close it. */
-    printf("dev_close\n");
+    sr_err("dev_close\n");
     /// should be called before a new call to scan()
     struct ipdbg_org_la_tcp *tcp = sdi->conn;
     ipdbg_org_la_tcp_close(tcp);
@@ -247,7 +247,7 @@ static int config_set(uint32_t key, GVariant *data,
     if (sdi->status != SR_ST_ACTIVE)
         return SR_ERR_DEV_CLOSED;
 
-    printf("config_set\n");
+    sr_err("config_set\n");
     struct ipdbg_org_la_dev_context *devc = sdi->priv;
 
     ret = SR_OK;
@@ -312,7 +312,7 @@ static int init(struct sr_dev_driver *di, struct sr_context *sr_ctx)
 
 static int cleanup(const struct sr_dev_driver *di)
 {
-    printf("cleanup\n");
+    sr_err("cleanup\n");
     dev_clear(di);
 
     //return std_cleanup(di);
@@ -335,29 +335,29 @@ static int dev_acquisition_start(const struct sr_dev_inst *sdi)
     struct ipdbg_org_la_dev_context *devc = sdi->priv;
 
     ipdbg_org_la_convert_trigger(sdi);
-    printf("dev_acquisition_start\n");
+    sr_err("dev_acquisition_start\n");
 
     /* Send Triggerkonviguration */
     ipdbg_org_la_sendTrigger(devc, tcp);
-    printf("dev_acquisition_start1\n");
+    sr_err("dev_acquisition_start1\n");
 
     /* Send Delay */
     ipdbg_org_la_sendDelay(devc, tcp);
-    printf("dev_acquisition_start2\n");
+    sr_err("dev_acquisition_start2\n");
 
     //std_session_send_df_header(sdi, LOG_PREFIX);
     std_session_send_df_header(sdi);
-    printf("dev_acquisition_start3\n");
+    sr_err("dev_acquisition_start3\n");
     /* If the device stops sending for longer than it takes to send a byte,
      * that means it's finished. But wait at least 100 ms to be safe.
      */
     //sr_session_source_add(sdi->session, -1, G_IO_IN, 100, ipdbg_receive_data, (struct sr_dev_inst *)sdi);
     //sr_session_source_add(sdi->session, -1, G_IO_IN, 100, ipdbg_org_la_receive_data, NULL);
     sr_session_source_add(sdi->session, tcp->socket, G_IO_IN, 100, ipdbg_org_la_receive_data, (struct sr_dev_inst *)sdi);
-    printf("dev_acquisition_start4\n");
+    sr_err("dev_acquisition_start4\n");
 
     ipdbg_org_la_sendStart(tcp);
-    printf("dev_acquisition_start5\n");
+    sr_err("dev_acquisition_start5\n");
     /* TODO: configure hardware, reset acquisition state, set up
      * callbacks and send header packet. */
 
@@ -367,7 +367,7 @@ static int dev_acquisition_start(const struct sr_dev_inst *sdi)
 static int dev_acquisition_stop(struct sr_dev_inst *sdi)
 {
 
-    printf("dev_acquisition_stop\n");
+    sr_err("dev_acquisition_stop\n");
 
     if (sdi->status != SR_ST_ACTIVE)
         return SR_ERR_DEV_CLOSED;

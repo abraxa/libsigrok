@@ -194,7 +194,7 @@ SR_PRIV int ipdbg_org_la_convert_trigger(const struct sr_dev_inst *sdi)
         devc->trigger_mask_last[i] = 0;
         devc->trigger_value_last[i] = 0;
     }
-    printf("\nDATA_WITH_BYTES:%i\n",devc->DATA_WIDTH_BYTES);
+    sr_err("\nDATA_WITH_BYTES:%i\n",devc->DATA_WIDTH_BYTES);
 
 //    devc->trigger_value[0] = 0x00;
 //    devc->trigger_value_last[0] = 0xff;
@@ -227,9 +227,9 @@ SR_PRIV int ipdbg_org_la_convert_trigger(const struct sr_dev_inst *sdi)
             unsigned int byteIndex = (match->channel->index) /8;
             unsigned char matchPattern = 1 << (match->channel->index - 8* byteIndex);
             //zeroTrigger |= matchPattern;
-            //printf("\n\nzerotrigger:%x\n\n",zeroTrigger);
-            //printf("\nbyteIndex:%i",byteIndex);
-            //printf("\nmatch Pattern:%i\n",matchPattern);
+            //sr_err("\n\nzerotrigger:%x\n\n",zeroTrigger);
+            //sr_err("\nbyteIndex:%i",byteIndex);
+            //sr_err("\nmatch Pattern:%i\n",matchPattern);
 
             if (!match->channel->enabled)
                 /* Ignore disabled channels with a trigger. */
@@ -239,7 +239,7 @@ SR_PRIV int ipdbg_org_la_convert_trigger(const struct sr_dev_inst *sdi)
                 devc->trigger_value[byteIndex] |= matchPattern;
                 devc->trigger_mask[byteIndex] |= matchPattern;
                 devc->trigger_mask_last[byteIndex] &= ~matchPattern;
-                //printf("\n========ONE MASK===========");
+                //sr_err("\n========ONE MASK===========");
 
             }
             else if (match->match == SR_TRIGGER_ZERO)
@@ -247,7 +247,7 @@ SR_PRIV int ipdbg_org_la_convert_trigger(const struct sr_dev_inst *sdi)
                 devc->trigger_value[byteIndex] &= ~matchPattern;
                 devc->trigger_mask[byteIndex] |= matchPattern;
                 devc->trigger_mask_last[byteIndex] &= ~matchPattern;
-                //printf("\n========ZERO MASK===========");
+                //sr_err("\n========ZERO MASK===========");
             }
             else if ( match->match == SR_TRIGGER_RISING)
             {
@@ -255,7 +255,7 @@ SR_PRIV int ipdbg_org_la_convert_trigger(const struct sr_dev_inst *sdi)
                 devc->trigger_value_last[byteIndex] &= ~matchPattern;
                 devc->trigger_mask[byteIndex] |= matchPattern;
                 devc->trigger_mask_last[byteIndex] |= matchPattern;
-                //printf("\n==========RISING===========");
+                //sr_err("\n==========RISING===========");
 
             }
             else if (match->match == SR_TRIGGER_FALLING )
@@ -264,24 +264,24 @@ SR_PRIV int ipdbg_org_la_convert_trigger(const struct sr_dev_inst *sdi)
                 devc->trigger_value_last[byteIndex] |= matchPattern;
                 devc->trigger_mask[byteIndex] |= matchPattern;
                 devc->trigger_mask_last[byteIndex] |= matchPattern;
-                //printf("\n========FALlING===========");
+                //sr_err("\n========FALlING===========");
             }
 
         }
 
     }
 
-//            printf("\n VAL LAST:%x\n",devc->trigger_value_last[0]);
-//            printf("\n VAL:%x\n",devc->trigger_value[0]);
-//            printf("\n MASK:%x\n",devc->trigger_mask[0]);
-//            printf("\n MASK LAST:%x\n",devc->trigger_mask_last[0]);
+//            sr_err("\n VAL LAST:%x\n",devc->trigger_value_last[0]);
+//            sr_err("\n VAL:%x\n",devc->trigger_value[0]);
+//            sr_err("\n MASK:%x\n",devc->trigger_mask[0]);
+//            sr_err("\n MASK LAST:%x\n",devc->trigger_mask_last[0]);
 
     return SR_OK;
 }
 
 SR_PRIV int ipdbg_org_la_receive_data(int fd, int revents, void *cb_data)
 {
-    //printf("receive Data0\n");
+    //sr_err("receive Data0\n");
 
 
     const struct sr_dev_inst *sdi;
@@ -297,14 +297,14 @@ SR_PRIV int ipdbg_org_la_receive_data(int fd, int revents, void *cb_data)
     {
         return FALSE;
     }
-    //printf("receive Data1\n");
+    //sr_err("receive Data1\n");
 
     if (!(devc = sdi->priv))
     {
         return FALSE;
 
     }
-    //printf("receive Data2\n");
+    //sr_err("receive Data2\n");
 
 
     struct ipdbg_org_la_tcp *tcp = sdi->conn;
@@ -336,7 +336,7 @@ SR_PRIV int ipdbg_org_la_receive_data(int fd, int revents, void *cb_data)
 
     if (devc->num_transfers < devc->limit_samples_max*devc->DATA_WIDTH_BYTES)
     {
-        printf("1");
+        sr_err("1");
         unsigned char byte;
 
 
@@ -350,7 +350,7 @@ SR_PRIV int ipdbg_org_la_receive_data(int fd, int revents, void *cb_data)
     }
     else
     {
-        printf("Received %d bytes", devc->num_transfers);
+        sr_err("Received %d bytes", devc->num_transfers);
 
         sr_dbg("Received %d bytes.", devc->num_transfers);
 
@@ -524,7 +524,7 @@ SR_PRIV int sendEscaping(struct ipdbg_org_la_tcp *tcp, char *dataToSend, int len
 
 SR_PRIV void ipdbg_org_la_get_addrwidth_and_datawidth(struct ipdbg_org_la_tcp *tcp, struct ipdbg_org_la_dev_context *devc)
 {
-    //printf("getAddrAndDataWidth\n");
+    //sr_err("getAddrAndDataWidth\n");
     uint8_t buf[8];
     uint8_t auslesen[1];
     auslesen[0]= K_Mauslesen;
