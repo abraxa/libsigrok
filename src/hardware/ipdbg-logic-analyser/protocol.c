@@ -189,10 +189,10 @@ SR_PRIV int ipdbg_org_la_convert_trigger(const struct sr_dev_inst *sdi)
     devc->raw_sample_buf = NULL; /// name convert_trigger to init acquisition...
     for (int i = 0; i < devc->DATA_WIDTH_BYTES; i++) // Hier werden die Trigger-Variabeln 0 gesetzt!
     {
-        devc->trigger_mask[0] = 0;
-        devc->trigger_value[0] = 0;
-        devc->trigger_mask_last [0] = 0;
-        devc->trigger_value_last[0] = 0;
+        devc->trigger_mask[i] = 0;
+        devc->trigger_value[i] = 0;
+        devc->trigger_mask_last[i] = 0;
+        devc->trigger_value_last[i] = 0;
     }
     printf("\nDATA_WITH_BYTES:%i\n",devc->DATA_WIDTH_BYTES);
 
@@ -204,8 +204,6 @@ SR_PRIV int ipdbg_org_la_convert_trigger(const struct sr_dev_inst *sdi)
 
     if (!(trigger = sr_session_trigger_get(sdi->session))) //
     {
-
-
         return SR_OK;
     }
 
