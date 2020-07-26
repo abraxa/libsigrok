@@ -188,13 +188,21 @@ AS_CASE([$host_os], [mingw*], [SR_PREPEND([SR_EXTRA_LIBS], [-lws2_32])])
 SR_SEARCH_LIBS([SR_EXTRA_LIBS], [pow], [m])
 
 # RPC is only needed for VXI support.
-AC_CACHE_CHECK([for RPC support], [sr_cv_have_rpc],
-	[AC_LINK_IFELSE([AC_LANG_PROGRAM(
-			[[#include <rpc/rpc.h>]m4_newline[CLIENT *rpc_test(void);]],
-			[[(void) clnt_create("", 0, 0, "");]])],
-		[sr_cv_have_rpc=yes], [sr_cv_have_rpc=no])])
+PKG_CHECK_MODULES([TIRPC],
+	[libtirpc],
+	[RPC_CFLAGS=$TIRPC_CFLAGS; SR_PREPEND([SR_EXTRA_LIBS], [$TIRPC_LIBS]); sr_cv_have_rpc=yes],
+	[sr_cv_have_rpc=no])
+AS_IF([test "x$sr_cv_have_rpc" = xno],
+	AC_CHECK_HEADER(rpc/rpc.h,
+		[RPC_CFLAGS=""; RPC_LIBS=""; sr_cv_have_rpc=yes],
+		[sr_cv_have_rpc=no]))
+
+AC_SUBST(RPC_CFLAGS)
+AC_SUBST(RPC_LIBS)
+
 AS_IF([test "x$sr_cv_have_rpc" = xyes],
-	[AC_DEFINE([HAVE_RPC], [1], [Specifies whether we have RPC support.])])
+	[AC_DEFINE([HAVE_RPC], [1], [Specifies whether we have RPC support (either by SunRPC or libtirpc).])])
+
 # VXI support is only compiled if RPC support was found.
 AM_CONDITIONAL([NEED_RPC], [test "x$sr_cv_have_rpc" = xyes])
 
