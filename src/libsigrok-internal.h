@@ -72,7 +72,7 @@ static inline uint8_t read_u8(const uint8_t *p)
 {
 	return p[0];
 }
-#define R8(x)	read_u8((const uint8_t *)(x))
+#define R8(x) read_u8((const uint8_t *)(x))
 
 /**
  * Read an 8 bits signed integer out of memory.
@@ -83,6 +83,7 @@ static inline int8_t read_i8(const uint8_t *p)
 {
 	return (int8_t)p[0];
 }
+#define R8S(x) read_i8((const uint8_t *)(x))
 
 /**
  * Read a 16 bits big endian unsigned integer out of memory.
