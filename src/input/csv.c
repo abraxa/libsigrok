@@ -889,31 +889,39 @@ static int parse_analog(const char *column, struct context *inc,
 	double dvalue; float fvalue;
 	csv_analog_t value;
 	int ret;
+	char *stripped_column;
 
 	if (!format_is_analog(details->text_format))
 		return SR_ERR_BUG;
 
-	length = strlen(column);
+	stripped_column = g_strdup(column);
+	g_strchomp(stripped_column);
+
+	length = strlen(stripped_column);
 	if (!length) {
 		sr_err("Column %zu in line %zu is empty.", details->col_nr,
 			inc->line_number);
+		g_free(stripped_column);
 		return SR_ERR;
 	}
 	if (sizeof(value) == sizeof(double)) {
-		ret = sr_atod_ascii(column, &dvalue);
+		ret = sr_atod_ascii(stripped_column, &dvalue);
 		value = dvalue;
 	} else if (sizeof(value) == sizeof(float)) {
-		ret = sr_atof_ascii(column, &fvalue);
+		ret = sr_atof_ascii(stripped_column, &fvalue);
 		value = fvalue;
 	} else {
 		ret = SR_ERR_BUG;
 	}
 	if (ret != SR_OK) {
 		sr_err("Cannot parse analog text %s in column %zu in line %zu.",
-			column, details->col_nr, inc->line_number);
+			stripped_column, details->col_nr, inc->line_number);
+		g_free(stripped_column);
 		return SR_ERR_DATA;
 	}
 	set_analog_value(inc, details->channel_offset, value);
+
+	g_free(stripped_column);
 
 	return SR_OK;
 }
